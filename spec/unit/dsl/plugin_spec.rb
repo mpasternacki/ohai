@@ -91,6 +91,20 @@ describe Ohai::DSL::Plugin::VersionVII do
     @name = :Test
   end
 
+  describe "when the plugin has an invalid name" do
+    it "should raise Ohai::Exceptions::InvalidPluginName if the name is not a symbol" do
+      expect{ Ohai.plugin("name") { } }.to raise_error(Ohai::Exceptions::InvalidPluginName, /Plugin name must be a symbol: name is not a symbol/)
+    end
+
+    it "should raise Ohai::Exceptions::InvalidPluginName if the name begins with a lower-case letter" do
+      expect{ Ohai.plugin(:name) { } }.to raise_error(Ohai::Exceptions::InvalidPluginName, /:name is an invalid plugin name/)
+    end
+
+    it "should raise Ohai::Exceptions::InvalidPluginName if the name contains an underscore" do
+      expect{ Ohai.plugin(:Plugin_Name) { } }.to raise_error(Ohai::Exceptions::InvalidPluginName, /:Plugin_Name is an invalid plugin name/)
+    end
+  end
+
   describe "#version" do
     it "should save the plugin version as :version7" do
       plugin = Ohai.plugin(@name) { }

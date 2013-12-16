@@ -27,6 +27,12 @@ module Ohai
 
   # For plugin namespacing
   module NamedPlugin
+    # Invalid plugin names are ones that don't start with a capital
+    # letter, or include underscores.
+    def self.valid_name?(name)
+      name.to_s.match(/^[^A-Z]|_/).nil?
+    end
+
     # dealing with ruby 1.8
     if Module.method(:const_defined?).arity == 1
       def self.strict_const_defined?(const)
@@ -40,6 +46,9 @@ module Ohai
   end
 
   def self.plugin(name, &block)
+    raise Ohai::Exceptions::InvalidPluginName, "Plugin name must be a symbol: #{name} is not a symbol. A valid plugin name is a symbol which begins with a capital letter and contains no underscores." unless name.is_a? Symbol
+    raise Ohai::Exceptions::InvalidPluginName, ":#{name} is an invalid plugin name. A valid plugin name is a symbol which begins with a capital letter and contains no underscores." unless NamedPlugin.valid_name?(name)
+
     plugin = nil
 
     if NamedPlugin.strict_const_defined?(name)
